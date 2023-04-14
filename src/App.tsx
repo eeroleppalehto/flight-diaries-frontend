@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import diaryService from './services/diaryService';
+import { NewDiaryEntry, NonSensitiveDiaryEntry } from './types';
+import Diaries from './components/Diaries';
+import DiaryForm from './components/DiaryForm';
+import toNonSensitiveDiaryEntry from './utils/toNonSensitiveDiary';
 
-function App() {
+const App = () => {
+  const [diaries, setDiaries] = useState<NonSensitiveDiaryEntry[]>([]);
+
+  useEffect(() => {
+    diaryService
+      .getAll()
+      .then(data => setDiaries(data));
+  }, [])
+
+  const addDiary = (newDiary: NewDiaryEntry) => {
+    diaryService
+      .createDiary(newDiary)
+      .then(responseDiary => setDiaries([...diaries, toNonSensitiveDiaryEntry(responseDiary)]))
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+    <>
+      <h1>Hello</h1>
+      <Diaries diaryList={diaries}/>
+      <DiaryForm addDiary={addDiary}/>
+    </>
+  )
+};
 
 export default App;
